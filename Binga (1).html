@@ -1,0 +1,1123 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Binga</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;700&display=swap">
+<style>
+:root{
+  /* Layout: casino floor. Felt-green ground, gold-trimmed cards, marquee bulbs under a sticky header, poker chips as number badges. One committed dark look. */
+  --bg:#06130D; --bar:#0A1F16; --surface:#0F2B1F; --surface-2:#18402E; --field:#07170F;
+  --ink:#F8F1DC; --ink-2:#B7CBBB; --line:#2E6249; --gold-line:#9A7620;
+  --accent:#F2C14E; --accent-ink:#1B1303; --gold-hi:#FBDD8B; --gold-lo:#D9A22B; --gold-dk:#8A6414;
+  --red:#D2183A; --good:#5EE394; --bad:#FF8080; --overlay:rgba(2,9,6,.8);
+  --paper:#F8F1DC; --paper-ink:#1B1A17;
+  --c1:#D2183A; --c1f:#FFFFFF; --c2:#F2C14E; --c2f:#1B1303; --c3:#1A1B1E; --c3f:#F2C14E;
+  --c4:#14A058; --c4f:#FFFFFF; --c5:#8A35A8; --c5f:#FFFFFF;
+  --t-starter:#9DB3A3; --t-copper:#E08043; --t-bronze:#C4944A; --t-silver:#CBD4E0; --t-gold:#F2C14E; --t-diamond:#6FE3FF;
+  --font-display:"Abril Fatface","Playfair Display",Georgia,serif;
+  --font-body:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --font-mono:"DM Mono",ui-monospace,Menlo,Consolas,monospace;
+  --r:14px;
+  color-scheme: dark;
+}
+[hidden]{display:none!important}
+*{box-sizing:border-box}
+body{margin:0;background-color:var(--bg);background-image:radial-gradient(ellipse 120% 55% at 50% -8%,#1B5238 0%,transparent 65%);background-repeat:no-repeat;color:var(--ink);font:16px/1.55 var(--font-body);-webkit-text-size-adjust:100%}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bar)}
+body.lock{overflow:hidden}
+h1,h2,h3{font-family:var(--font-display);font-weight:400;line-height:1.1;margin:0;text-wrap:balance;letter-spacing:.01em}
+h1{font-size:clamp(32px,6vw,52px)}
+h2{font-size:clamp(23px,4vw,30px)}
+h3{font-size:20px}
+p{margin:0}
+a{color:var(--accent)}
+.gold{color:var(--accent)}
+.mono{font-family:var(--font-mono);font-variant-numeric:tabular-nums}
+.muted{color:var(--ink-2)}
+.small{font-size:14px}
+.wrap{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+
+/* header with marquee bulbs */
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bar);border-bottom:1px solid var(--gold-line)}
+.bar{display:flex;flex-wrap:wrap;align-items:center;gap:6px 18px;padding-block:10px 6px}
+.bulbs{height:12px;background:radial-gradient(circle at 8px 6px,var(--accent) 0 2.6px,rgba(242,193,78,.25) 3px 5px,transparent 5.5px) 0 0/16px 12px repeat-x;animation:twinkle 1.8s ease-in-out infinite alternate}
+@keyframes twinkle{from{opacity:1}to{opacity:.5}}
+.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--accent);font-family:var(--font-display);font-size:32px;line-height:1;text-shadow:0 0 16px rgba(242,193,78,.4)}
+.ball{display:inline-grid;place-items:center;flex:none;border-radius:50%;width:38px;height:38px;font-family:var(--font-display);font-size:19px;line-height:1;border:3px dashed rgba(255,255,255,.72);box-shadow:0 0 0 2px rgba(0,0,0,.4),inset 0 0 0 3px rgba(0,0,0,.2)}
+.ball.lg{width:56px;height:56px;font-size:24px}
+.c1{background:var(--c1);color:var(--c1f)} .c2{background:var(--c2);color:var(--c2f)} .c3{background:var(--c3);color:var(--c3f)}
+.c4{background:var(--c4);color:var(--c4f)} .c5{background:var(--c5);color:var(--c5f)}
+nav{display:flex;gap:4px;flex:1;min-width:0;overflow-x:auto}
+nav a{padding:8px 13px;border-radius:999px;color:var(--ink-2);text-decoration:none;font-weight:700;white-space:nowrap;font-size:15px}
+nav a:hover{color:var(--ink)}
+nav a[aria-current]{background:var(--accent);color:var(--accent-ink)}
+.tag{display:inline-block;font-family:var(--font-mono);font-size:11px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;border:1px solid currentColor;border-radius:999px;padding:1px 7px;margin-left:4px;vertical-align:1px}
+.acct{display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:12px;margin-left:auto}
+.bal{display:flex;gap:10px;align-items:baseline;text-decoration:none;color:var(--ink);background:var(--surface);border:1px solid var(--gold-line);border-radius:999px;padding:6px 14px;font-size:14px}
+.bal b{font-family:var(--font-mono);font-weight:500;font-size:15px;color:var(--accent)}
+@media (max-width:640px){nav{order:3;flex-basis:100%}}
+
+/* buttons and fields */
+.btn{appearance:none;border:0;background:linear-gradient(180deg,var(--gold-hi),var(--gold-lo));color:var(--accent-ink);font:700 15px/1 var(--font-body);padding:12px 18px;border-radius:10px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 2px 0 var(--gold-dk),0 6px 16px rgba(242,193,78,.16)}
+.btn:hover{filter:brightness(1.07)}
+.btn:active{transform:translateY(1px);box-shadow:0 1px 0 var(--gold-dk)}
+.btn:disabled{opacity:.45;cursor:not-allowed;filter:none;transform:none}
+.btn.ghost{background:transparent;color:var(--accent);box-shadow:inset 0 0 0 2px var(--gold-line)}
+.btn.sm{padding:9px 14px;font-size:14px}
+.btn.again{font:400 21px/1 var(--font-display);letter-spacing:.02em;padding:16px 46px}
+.link{appearance:none;background:none;border:0;padding:0;color:var(--accent);font:inherit;font-weight:700;cursor:pointer;text-decoration:underline}
+:where(a,button,input,select,textarea,.game):focus-visible{outline:3px solid var(--ink);outline-offset:2px}
+label{display:block;font-weight:700;font-size:14px;margin-bottom:6px}
+input,textarea,select{width:100%;font:500 16px/1.2 var(--font-mono);padding:11px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--field);color:var(--ink)}
+input:focus,textarea:focus,select:focus{border-color:var(--accent)}
+input::placeholder,textarea::placeholder{color:var(--ink-2);opacity:.7}
+textarea{resize:vertical;min-height:120px;font-size:14px;line-height:1.5}
+.field{display:block;min-width:0}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.row.center{justify-content:center}
+.err{color:var(--bad);font-weight:700;font-size:14px;min-height:1.3em}
+.note{background:var(--surface-2);border-left:4px solid var(--accent);border-radius:10px;padding:10px 12px;font-size:14px}
+
+/* views */
+main{padding-block:28px 56px;display:flex;flex-direction:column;gap:28px}
+.view{display:flex;flex-direction:column;gap:22px}
+.intro{display:flex;flex-direction:column;gap:10px;max-width:64ch}
+.intro p{color:var(--ink-2);font-size:17px}
+.panel{background:linear-gradient(180deg,var(--surface-2),var(--surface));border:1px solid var(--gold-line);border-radius:var(--r);padding:20px;display:flex;flex-direction:column;gap:14px;min-width:0}
+.rates{display:flex;flex-wrap:wrap;gap:8px 22px;font-family:var(--font-mono);font-size:14px;color:var(--ink-2)}
+.rates b{color:var(--accent);font-weight:500}
+.narrow{max-width:520px}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px}
+
+/* games */
+.games{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:14px}
+.game{display:flex;flex-direction:column;gap:12px;text-align:left;background:linear-gradient(180deg,var(--surface-2),var(--surface));border:1px solid var(--gold-line);border-radius:var(--r);padding:16px;cursor:pointer;font:inherit;color:inherit;transition:transform .15s,box-shadow .15s,border-color .15s}
+.game:hover{transform:translateY(-2px);border-color:var(--accent);box-shadow:0 0 0 1px var(--accent),0 10px 26px rgba(242,193,78,.14)}
+.game-top{display:flex;gap:14px;align-items:center}
+.game-name{font-family:var(--font-display);font-size:20px;line-height:1.1;display:flex;flex-direction:column;gap:4px}
+.game-name small{font:500 13px var(--font-mono);color:var(--accent)}
+.blurb{color:var(--ink-2);font-size:15px;flex:1}
+.game-foot{display:flex;justify-content:space-between;align-items:center;font-size:13px}
+.go{font-weight:700;color:var(--accent)}
+
+/* passes */
+.tickets{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.ticket{position:relative;background:linear-gradient(180deg,var(--surface-2),var(--surface));border:1px solid var(--gold-line);border-radius:var(--r);padding:20px 20px 18px;display:flex;flex-direction:column;gap:4px;min-width:0}
+.ticket::before,.ticket::after{content:"";position:absolute;top:62%;width:20px;height:20px;border-radius:50%;background:var(--bg);border:1px solid var(--gold-line)}
+.ticket::before{left:-11px}.ticket::after{right:-11px}
+.ticket.tiered{border-top:6px solid var(--tier,var(--line))}
+.tier-name{display:flex;align-items:center;gap:8px;font:700 13px var(--font-body);letter-spacing:.08em;text-transform:uppercase}
+.tier-name i{width:12px;height:12px;border-radius:50%;background:var(--tier);display:inline-block;box-shadow:inset -2px -2px 0 rgba(0,0,0,.25)}
+.ticket .amt{font-family:var(--font-display);font-size:clamp(36px,5vw,46px);line-height:1;font-variant-numeric:tabular-nums;color:var(--accent)}
+.unit{font:500 13px var(--font-mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink-2)}
+.perf{border-top:2px dashed var(--gold-line);margin:14px -20px 14px}
+.ticket .price{font:500 18px var(--font-mono)}
+.need{font-size:13px;font-weight:700;color:var(--ink-2)}
+.need.ok{color:var(--good)}
+.ticket .btn{margin-top:10px}
+.sum{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.sum div{display:flex;justify-content:space-between;gap:12px}
+.sum b{font-family:var(--font-mono);font-weight:500;color:var(--accent);text-align:right}
+.hint{color:var(--ink-2);font-size:14px}
+
+/* upgrades */
+.ups{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px}
+.pips{display:flex;gap:6px;flex-wrap:wrap}
+.pips i{width:16px;height:16px;border-radius:50%;border:2px solid var(--gold-line);display:inline-block}
+.pips i.on{background:var(--accent);border-color:var(--accent);box-shadow:0 0 8px rgba(242,193,78,.5)}
+
+/* wallet */
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px}
+.stat-box{background:linear-gradient(180deg,var(--surface-2),var(--surface));border:1px solid var(--gold-line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:2px}
+.stat-box span{font-size:13px;color:var(--ink-2);font-weight:700}
+.stat-box b{font:500 26px var(--font-mono);font-variant-numeric:tabular-nums;color:var(--accent)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chip{appearance:none;border:1.5px solid var(--gold-line);background:transparent;color:var(--ink);font:700 14px var(--font-body);padding:7px 14px;border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:14px}
+th{text-align:left;font:700 12px var(--font-body);letter-spacing:.06em;text-transform:uppercase;color:var(--ink-2);padding:8px 10px;border-bottom:2px solid var(--gold-line)}
+td{padding:10px;border-bottom:1px solid var(--line);vertical-align:top}
+td.n,th.n{text-align:right;font-family:var(--font-mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+.pos{color:var(--good)} .neg{color:var(--bad)}
+.passlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.mini{background:var(--field);border:1px solid var(--line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.mini .code{font:500 13px var(--font-mono);color:var(--ink-2);word-break:break-all}
+.mini .left{font:500 20px var(--font-mono);color:var(--accent)}
+.mini.used{opacity:.55}
+.bar-track{height:8px;border-radius:99px;background:var(--field);overflow:hidden;margin-top:8px;border:1px solid var(--line)}
+.bar-fill{height:100%;background:linear-gradient(90deg,var(--gold-lo),var(--gold-hi));border-radius:99px}
+.lvl-top{display:flex;gap:14px;align-items:center}
+.levels{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.levels li{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 12px;border-radius:10px;background:var(--field);font-size:14px}
+.levels li[aria-current]{background:var(--accent);color:var(--accent-ink);font-weight:700}
+.levels li.locked{opacity:.6}
+.up{font-weight:700;color:var(--good)}
+
+/* trading */
+.mock{display:grid;grid-template-columns:1fr auto 1fr;gap:12px;align-items:center;opacity:.55;filter:grayscale(.4);pointer-events:none;user-select:none}
+.mock .side{background:var(--field);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px}
+.mock .arrows{font:500 24px var(--font-mono)}
+@media (max-width:560px){.mock{grid-template-columns:1fr}.mock .arrows{text-align:center}}
+
+/* owner */
+.mail{background:linear-gradient(180deg,var(--surface-2),var(--surface));border:1px solid var(--gold-line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:8px}
+.mail pre,.mailpre{margin:0;white-space:pre-wrap;word-break:break-word;font:400 13px/1.55 var(--font-mono);background:var(--field);border-radius:8px;padding:10px}
+.mail .meta{font:500 13px var(--font-mono);color:var(--ink-2)}
+.ok-box{background:var(--field);border-left:5px solid var(--good);border-radius:10px;padding:12px 14px;display:flex;flex-direction:column;gap:4px;font-size:14px}
+.bad-box{background:var(--field);border-left:5px solid var(--bad);border-radius:10px;padding:12px 14px;font-size:14px}
+
+/* modal */
+#overlay{position:fixed;inset:0;z-index:50;background:var(--overlay);display:flex;align-items:flex-start;justify-content:center;overflow-y:auto;padding:max(16px,env(safe-area-inset-top,0px)) max(16px,env(safe-area-inset-right,0px)) max(16px,env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.modal{background:linear-gradient(180deg,var(--surface-2),var(--surface));color:var(--ink);border-radius:18px;width:100%;max-width:520px;margin:auto;padding:22px;display:flex;flex-direction:column;gap:14px;border:2px solid var(--gold-line);box-shadow:0 24px 60px rgba(0,0,0,.6);outline:none}
+.m-head{display:flex;justify-content:space-between;align-items:flex-start;gap:12px}
+.x{appearance:none;border:0;background:var(--field);color:var(--ink);width:36px;height:36px;border-radius:50%;font-size:22px;line-height:1;cursor:pointer;flex:none}
+.receipt{border:2px dashed var(--gold-line);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:4px;font-family:var(--font-mono);font-size:14px;word-break:break-word}
+#result:empty{display:none}
+.result{background:var(--field);border:1px solid var(--gold-line);border-radius:14px;padding:16px;display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px}
+.result strong{font-family:var(--font-display);font-weight:400;font-size:26px;color:var(--accent)}
+.stage{display:flex;flex-direction:column;gap:14px;align-items:stretch;min-height:200px}
+.stat{font:500 14px var(--font-mono);text-align:center;color:var(--ink-2)}
+.code-box{font:500 28px var(--font-mono);letter-spacing:.2em;text-align:center;background:var(--field);border:1px solid var(--gold-line);color:var(--accent);border-radius:12px;padding:12px;margin-bottom:8px;user-select:none}
+
+/* game stages */
+.bingo-card{display:grid;grid-template-columns:repeat(3,64px);gap:8px;justify-content:center}
+.cell{height:64px;border-radius:12px;background:var(--field);border:1px solid var(--line);display:grid;place-items:center;font:500 22px var(--font-mono);transition:background .2s,color .2s}
+.cell.hit{background:var(--red);color:#fff;border-color:var(--red)}
+.balls{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;min-height:36px}
+.balls .ball{width:34px;height:34px;font-size:15px}
+.coin{width:110px;height:110px;border-radius:50%;margin:0 auto;display:grid;place-items:center;background:var(--c2);color:var(--c2f);font:400 20px var(--font-display);border:4px dashed rgba(27,19,3,.55);box-shadow:inset -6px -8px 0 rgba(0,0,0,.14)}
+.coin.flip{animation:spin .9s linear}
+@keyframes spin{to{transform:rotateY(1080deg)}}
+.duel{display:grid;grid-template-columns:1fr 1fr;gap:12px;text-align:center}
+.lbl{font-weight:700;font-size:13px;color:var(--ink-2);display:block;margin-bottom:6px}
+.dice{display:flex;gap:8px;justify-content:center}
+.dice span{width:52px;height:52px;border-radius:10px;background:var(--paper);color:var(--paper-ink);display:grid;place-items:center;font:500 24px var(--font-mono)}
+.cards{display:flex;gap:14px;justify-content:center}
+.pc{width:84px;height:116px;border-radius:12px;background:var(--paper);color:var(--paper-ink);border:2px solid var(--gold-line);display:grid;place-items:center;font:400 34px var(--font-display)}
+.pc.back{background:repeating-linear-gradient(45deg,var(--red) 0 6px,#A5102D 6px 12px);color:var(--paper)}
+.mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:320px;margin:0 auto;width:100%}
+.mc{appearance:none;border:0;aspect-ratio:1;border-radius:12px;background:var(--c1);color:var(--c1f);font:500 22px var(--font-mono);cursor:pointer}
+.mc.up{background:var(--paper);color:var(--paper-ink)}
+.mc.ok{background:var(--c4);color:var(--c4f)}
+.whack{display:grid;grid-template-columns:repeat(3,76px);gap:10px;justify-content:center}
+.wc{appearance:none;border:2px solid var(--line);width:76px;height:76px;border-radius:50%;background:var(--field);cursor:pointer}
+.wc.on{background:var(--accent);border-color:var(--gold-hi);box-shadow:0 0 16px rgba(242,193,78,.6)}
+.pad{appearance:none;border:2px solid var(--gold-line);height:150px;border-radius:16px;background:var(--field);color:var(--ink);font:400 24px var(--font-display);cursor:pointer}
+.pad.wait{background:var(--red);color:#fff}
+.pad.go{background:var(--c4);color:#fff}
+.nums{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;max-width:340px;margin:0 auto;width:100%}
+.nums .btn{padding:14px 0}
+.reels{display:flex;gap:10px;justify-content:center}
+.reel{width:76px;height:92px;border-radius:14px;background:var(--paper);color:var(--red);border:3px solid var(--gold-line);display:grid;place-items:center;font:400 44px var(--font-display)}
+
+#toast{position:fixed;left:50%;transform:translateX(-50%);bottom:max(20px,env(safe-area-inset-bottom,0px));z-index:60;background:var(--accent);color:var(--accent-ink);padding:11px 18px;border-radius:999px;font-weight:700;font-size:14px;max-width:calc(100% - 32px);text-align:center;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+footer{border-top:1px solid var(--gold-line);padding-block:22px 34px;font-size:14px;color:var(--ink-2);display:flex;flex-wrap:wrap;gap:8px 22px;justify-content:space-between}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<header class="top">
+  <div class="wrap bar">
+    <a class="brand" href="#play" aria-label="Binga home"><span class="ball c1" aria-hidden="true">b</span>binga</a>
+    <nav aria-label="Main">
+      <a href="#play">Games</a>
+      <a href="#passes">Passes</a>
+      <a href="#upgrades">Upgrades</a>
+      <a href="#wallet">My Binga</a>
+      <a href="#trading">Trading<span class="tag">soon</span></a>
+      <a href="#owner" id="owner-link" hidden>Owner</a>
+    </nav>
+    <div id="acct" class="acct"></div>
+  </div>
+  <div class="bulbs" aria-hidden="true"></div>
+</header>
+
+<main class="wrap">
+  <section id="v-play" class="view" hidden>
+    <div class="intro">
+      <h1>Ten <span class="gold">free</span> games</h1>
+      <p>Play as much as you like. Every round earns binga points, and your level multiplies them. Spend your points on bingas in Passes, or on Upgrades.</p>
+      <div class="rates" id="pay-rates"></div>
+    </div>
+    <div id="play-banner"></div>
+    <div class="games" id="games"></div>
+  </section>
+
+  <section id="v-passes" class="view" hidden>
+    <div class="intro">
+      <h1>Binga passes</h1>
+      <p>You pay with binga points, never real money. Games are free, so you earn points by playing and spend them here.</p>
+      <div class="rates"><span><b>10</b> binga points = <b>1</b> bingas</span><span>Games cost <b>0</b></span></div>
+    </div>
+    <div class="tickets" id="tickets"></div>
+    <div class="panel narrow">
+      <h3>Spend your points</h3>
+      <div class="field"><label for="custom">How many binga points do you want to spend?</label>
+      <input id="custom" type="number" inputmode="numeric" min="10" max="1000000" step="1" value="100"></div>
+      <button class="link small" data-act="allpoints" style="align-self:flex-start">Use all my points</button>
+      <div class="sum" aria-live="polite">
+        <div><span>Bingas you get</span><b id="c-get"></b></div>
+        <div><span>Points spent</span><b id="c-spend"></b></div>
+        <div><span>Points left</span><b id="c-left"></b></div>
+      </div>
+      <p class="hint" id="c-lo"></p>
+      <button class="btn" data-act="buycustom">Buy these bingas</button>
+    </div>
+  </section>
+
+  <section id="v-upgrades" class="view" hidden>
+    <div class="intro">
+      <h1>Upgrades</h1>
+      <p>Spend binga points to earn more per round or to level up faster. Every step costs more than the last, so it takes a while on purpose.</p>
+      <div class="rates"><span>Your points <b id="up-bal">–</b></span></div>
+    </div>
+    <div class="ups" id="ups"></div>
+  </section>
+
+  <section id="v-wallet" class="view" hidden></section>
+
+  <section id="v-trading" class="view" hidden>
+    <div class="intro">
+      <h1>Trading <span class="tag" style="font-size:13px;vertical-align:middle">coming soon</span></h1>
+      <p>Soon you will be able to swap bingas and binga points with other players. Trading is not open yet, so nothing here can be clicked.</p>
+    </div>
+    <div class="panel">
+      <h3>What a trade will look like</h3>
+      <div class="mock" aria-hidden="true">
+        <div class="side"><span class="small muted">You give</span><b class="mono">100 bingas</b></div>
+        <span class="arrows">⇄</span>
+        <div class="side"><span class="small muted">You get</span><b class="mono">1,000 binga points</b></div>
+      </div>
+      <p class="muted small">Offers, counter-offers and a trade log will live here. Your balance and history already work, so trades will show up in My Binga when the feature opens.</p>
+    </div>
+  </section>
+
+  <section id="v-owner" class="view" hidden></section>
+</main>
+
+<footer class="wrap">
+  <span>Binga points have no cash value. Accounts and history live in this browser.</span>
+</footer>
+
+<div id="overlay" hidden></div>
+<div id="toast" role="status" aria-live="polite" hidden></div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- settings ---------- */
+var CFG = {
+  pointsPerBinga: 10,      // 10 binga points = 1 bingas
+  ownerEmail: "umit.pesen@bergensskolen.com",
+  ownerHash: "2ed842786c33249dc40395c73f7bf293ed9ace5f1040d85af45cc9efdaabd9ae",   // SHA-256 of the owner key. The key itself is not stored in the page.
+  signSalt: "243ac7e97f0a7db0a7cc07e0",
+  tiers: [
+    {id: "starter", name: "Starter Pass", binga: 1},
+    {id: "copper",  name: "Copper Pass",  binga: 5},
+    {id: "bronze",  name: "Bronze Pass",  binga: 10},
+    {id: "silver",  name: "Silver Pass",  binga: 100},
+    {id: "gold",    name: "Gold Pass",    binga: 1000},
+    {id: "diamond", name: "Diamond Pass", binga: 10000}
+  ],
+  levels: [
+    {n: 1, name: "Rookie",  games: 0,    mult: 1},
+    {n: 2, name: "Regular", games: 50,   mult: 2},
+    {n: 3, name: "Pro",     games: 150,  mult: 3},
+    {n: 4, name: "Master",  games: 400,  mult: 4},
+    {n: 5, name: "Legend",  games: 1000, mult: 5}
+  ],
+  upgrades: [
+    {id: "pts", name: "Lucky Chips", max: 10,
+     desc: "Every round pays more binga points, win or lose.",
+     cost: function(n){ return Math.round(50 * Math.pow(1.8, n) / 5) * 5; },
+     effect: function(n, u){ var p = (1 + n) * levelOf(u.games).mult; return fmt(p) + (p === 1 ? " point" : " points") + " for playing a round"; }},
+    {id: "lvl", name: "Fast Track", max: 4,
+     desc: "Each round you play counts as more games toward your next level.",
+     cost: function(n){ return 400 * Math.pow(4, n); },
+     effect: function(n){ return (1 + n) + (n === 0 ? " game" : " games") + " counted per round"; }}
+  ]
+};
+
+/* ---------- helpers ---------- */
+function $(s, r){ return (r || document).querySelector(s); }
+function $$(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]; }); }
+function fmt(n){ return Number(n).toLocaleString("en-GB"); }
+function rand(n){ return Math.floor(Math.random() * n); }
+function shuffle(a){ for (var i = a.length - 1; i > 0; i--){ var j = rand(i + 1), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
+function when(t){ return new Date(t).toLocaleString("en-GB", {day:"numeric", month:"short", hour:"2-digit", minute:"2-digit"}); }
+
+var mem = {};
+function sget(k, d){
+  if (k in mem) return mem[k];
+  try { var v = localStorage.getItem(k); if (v !== null) { mem[k] = JSON.parse(v); return mem[k]; } } catch (e) {}
+  return d;
+}
+function sset(k, v){ mem[k] = v; try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+
+var toastTimer;
+function toast(msg){
+  var t = $("#toast"); t.textContent = msg; t.hidden = false;
+  clearTimeout(toastTimer); toastTimer = setTimeout(function(){ t.hidden = true; }, 2800);
+}
+
+/* ---------- data ---------- */
+var users = sget("binga.users", {});
+var session = sget("binga.session", null);
+var outbox = sget("binga.outbox", []);
+var ownerEmail = sget("binga.owner", "") || CFG.ownerEmail;
+var histFilter = "all";
+var OWNER_KEY = "binga 1";
+var ownerUnlocked = session === OWNER_KEY && sget("binga.ownerok", false) === true;
+
+function save(){ sset("binga.users", users); }
+function cur(){ return (session && users[session]) || null; }
+function totalBinga(u){ return u.passes.reduce(function(a, p){ return a + p.left; }, 0); }
+function logH(u, type, label, dB, dP){
+  u.history.unshift({t: Date.now(), type: type, label: label, dB: dB, dP: dP, b: totalBinga(u), p: u.points});
+  if (u.history.length > 400) u.history.length = 400;
+}
+function spendBinga(u, n){
+  if (totalBinga(u) < n) return false;
+  var rest = n;
+  for (var i = 0; i < u.passes.length && rest > 0; i++){
+    var take = Math.min(u.passes[i].left, rest);
+    u.passes[i].left -= take; rest -= take;
+  }
+  return true;
+}
+function newPass(name, binga, source){
+  var chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", c = "";
+  for (var i = 0; i < 8; i++){ c += chars[rand(chars.length)]; if (i === 3) c += "-"; }
+  return {code: "BNG-" + c, name: name, total: binga, left: binga, source: source, t: Date.now()};
+}
+function hashPass(salt, pass){
+  var text = salt + ":" + pass;
+  try {
+    if (window.crypto && crypto.subtle && window.TextEncoder){
+      return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)).then(function(buf){
+        return Array.prototype.map.call(new Uint8Array(buf), function(b){ return ("0" + b.toString(16)).slice(-2); }).join("");
+      });
+    }
+  } catch (e) {}
+  var h = 5381; for (var i = 0; i < text.length; i++){ h = ((h << 5) + h + text.charCodeAt(i)) | 0; }
+  return Promise.resolve("x" + (h >>> 0).toString(16));
+}
+
+/* ---------- modal ---------- */
+var overlay = $("#overlay"), lastFocus = null, gameToken = 0;
+function later(fn, ms){ var t = gameToken; return setTimeout(function(){ if (t === gameToken) fn(); }, ms); }
+function openModal(html){
+  lastFocus = document.activeElement;
+  overlay.innerHTML = '<div class="modal" role="dialog" aria-modal="true" tabindex="-1">' + html + "</div>";
+  overlay.hidden = false; document.body.classList.add("lock");
+  var m = $(".modal", overlay), f = m.querySelector("input,button:not(.x),a[href]");
+  (f || m).focus();
+}
+function closeModal(){
+  gameToken++;
+  overlay.hidden = true; overlay.innerHTML = ""; document.body.classList.remove("lock");
+  if (lastFocus && lastFocus.focus){ try { lastFocus.focus(); } catch (e) {} }
+}
+overlay.addEventListener("click", function(e){
+  if (e.target === overlay || e.target.closest("[data-close]")) closeModal();
+});
+document.addEventListener("keydown", function(e){
+  if (overlay.hidden) return;
+  if (e.key === "Escape"){ closeModal(); return; }
+  if (e.key === "Tab"){
+    var f = $$("button:not(:disabled),input,a[href]", overlay);
+    if (!f.length) return;
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first){ e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last){ e.preventDefault(); first.focus(); }
+  }
+});
+
+/* ---------- auth ---------- */
+function openAuth(msg, mode){
+  mode = mode || "in";
+  var signIn = mode === "in";
+  openModal(
+    '<div class="m-head"><h2>' + (signIn ? "Sign in" : "Create your account") + '</h2><button class="x" data-close aria-label="Close">×</button></div>' +
+    (msg ? '<p class="note">' + esc(msg) + "</p>" : "") +
+    '<form id="authform" autocomplete="off" style="display:flex;flex-direction:column;gap:12px">' +
+    '<div class="field"><label for="a-name">Your name</label><input id="a-name" maxlength="24" required></div>' +
+    '<div class="field"><label for="a-pass">Passcode (4 or more characters)</label><input id="a-pass" type="password" minlength="4" required></div>' +
+    '<p class="err" id="a-err" role="alert"></p>' +
+    '<button class="btn" type="submit">' + (signIn ? "Sign in" : "Create account") + "</button></form>" +
+    '<p class="small">' + (signIn ? "New here? " : "Already have an account? ") +
+    '<button type="button" class="link" id="a-swap">' + (signIn ? "Create an account" : "Sign in") + "</button></p>" +
+    '<p class="small muted">Your account and history are saved in this browser only.</p>'
+  );
+  $("#a-swap").addEventListener("click", function(){ openAuth(msg, signIn ? "up" : "in"); });
+  $("#authform").addEventListener("submit", function(e){
+    e.preventDefault();
+    var name = $("#a-name").value.trim().replace(/\s+/g, " "), pass = $("#a-pass").value, err = $("#a-err");
+    if (name.length < 2){ err.textContent = "Enter a name with at least 2 characters."; return; }
+    if (pass.length < 4){ err.textContent = "The passcode needs at least 4 characters."; return; }
+    var key = name.toLowerCase();
+    if (key === OWNER_KEY){ ownerLogin(pass, err); return; }
+    if (signIn){
+      var u = users[key];
+      if (!u){ err.textContent = "No account with that name. Create one instead."; return; }
+      hashPass(u.salt, pass).then(function(h){
+        if (h !== u.hash){ err.textContent = "That passcode does not match."; return; }
+        startSession(key, "Welcome back, " + u.name + ".");
+      });
+    } else {
+      if (users[key]){ err.textContent = "That name is taken. Sign in or pick another."; return; }
+      var salt = String(Date.now()) + rand(99999);
+      hashPass(salt, pass).then(function(h){
+        users[key] = {name: name, salt: salt, hash: h, created: Date.now(), passes: [], points: 0, games: 0, rounds: 0, up: {pts: 0, lvl: 0}, history: []};
+        startSession(key, "Account created. Welcome, " + name + ".");
+      });
+    }
+  });
+}
+function passFor(p){ return session === OWNER_KEY ? p.trim().toUpperCase() : p; }
+function ownerLogin(pass, err){
+  var okey = pass.trim().toUpperCase();
+  hashPass("binga-owner", okey).then(function(oh){
+    if (oh !== CFG.ownerHash){ err.textContent = "Binga 1 is the owner account. Enter the owner key as the passcode."; return; }
+    var u = users[OWNER_KEY];
+    if (!u) u = users[OWNER_KEY] = {name: "Binga 1", salt: String(Date.now()) + rand(99999), hash: "", created: Date.now(), passes: [], points: 0, games: 0, rounds: 0, up: {pts: 0, lvl: 0}, history: []};
+    hashPass(u.salt, okey).then(function(h){
+      u.hash = h; ownerUnlocked = true; sset("binga.ownerok", true);
+      startSession(OWNER_KEY, "Welcome, owner.");
+    });
+  });
+}
+function startSession(key, msg){
+  session = key; sset("binga.session", key);
+  if (key !== OWNER_KEY){ ownerUnlocked = false; sset("binga.ownerok", false); }
+  var u = cur();
+  logH(u, "visit", "Signed in", 0, 0); save();
+  closeModal(); renderAll(); toast(msg);
+}
+function signOut(){ ownerUnlocked = false; sset("binga.ownerok", false); session = null; sset("binga.session", null); renderAll(); toast("Signed out."); }
+
+/* ---------- levels, points and upgrades ---------- */
+var BLANK = {games: 0, up: {}};
+function viewer(){ return cur() || BLANK; }
+function levelOf(g){ var L = CFG.levels[0]; CFG.levels.forEach(function(l){ if (g >= l.games) L = l; }); return L; }
+function nextLevel(g){ for (var i = 0; i < CFG.levels.length; i++){ if (CFG.levels[i].games > g) return CFG.levels[i]; } return null; }
+function upLvl(u, id){ return (u.up && u.up[id]) || 0; }
+function multOf(u){ return levelOf(u.games).mult; }
+function playBonus(u){ return 1 + upLvl(u, "pts"); }          /* base points for playing one round */
+function creditsPerRound(u){ return 1 + upLvl(u, "lvl"); }     /* games counted toward the next level */
+function earn(u, prize){ return (prize + playBonus(u)) * multOf(u); }
+function P(n){ return fmt(n * multOf(viewer())); }             /* a prize as this player would earn it */
+function playPts(){ return playBonus(viewer()) * multOf(viewer()); }
+function hint(t){ var p = playPts(); return '<p class="hint">' + t + " Playing adds " + fmt(p) + (p === 1 ? " point." : " points.") + "</p>"; }
+function payLine(){
+  var u = viewer(), L = levelOf(u.games);
+  return "<span>Playing pays <b>" + fmt(playBonus(u) * L.mult) + "</b> " + (playBonus(u) * L.mult === 1 ? "point" : "points") + " a round</span><span>Prizes go on top</span><span>Level <b>" + L.n + "</b> · <b>×" + L.mult + "</b> points</span>";
+}
+function levelCard(u){
+  var L = levelOf(u.games), N = nextLevel(u.games), pct = 100, cr = creditsPerRound(u);
+  var txt = "Top level reached.";
+  if (N){
+    pct = Math.round((u.games - L.games) / (N.games - L.games) * 100);
+    txt = fmt(u.games) + " of " + fmt(N.games) + " games to Level " + N.n + " (×" + N.mult + " points)";
+  }
+  return '<div class="panel"><div class="lvl-top"><span class="ball lg c2" aria-hidden="true">' + L.n + "</span>" +
+    "<div><h3>Level " + L.n + " · " + L.name + '</h3><p class="muted small">Your points are ×' + L.mult + ". Each round counts as " + cr + (cr === 1 ? " game." : " games.") + "</p></div></div>" +
+    '<div class="bar-track" role="img" aria-label="' + pct + ' percent of the way to the next level"><div class="bar-fill" style="width:' + pct + '%"></div></div>' +
+    '<p class="small">' + txt + "</p></div>";
+}
+
+/* ---------- games ---------- */
+var CARD = ["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+var GAMES = [
+  {id:"bingo",  name:"Binga Bingo",         top:100, blurb:"Nine balls drop onto your 3×3 card. Every full line pays.", run:gBingo},
+  {id:"coin",   name:"Coin Flip",           top:8,   blurb:"Call heads or tails. One flip decides it.", run:gCoin},
+  {id:"dice",   name:"Dice Duel",           top:8,   blurb:"Roll two dice against the house. The higher total wins.", run:gDice},
+  {id:"hilo",   name:"Higher or Lower",     top:8,   blurb:"See one card and guess whether the next one is higher or lower.", run:gHilo},
+  {id:"memory", name:"Memory Match",        top:30,  blurb:"Find all six pairs in as few moves as you can.", run:gMemory},
+  {id:"whack",  name:"Whack-a-Ball",        top:30,  blurb:"Fifteen seconds. Tap each ball as it lights up.", run:gWhack},
+  {id:"react",  name:"Quick Draw",          top:25,  blurb:"Tap the moment the pad turns green. Too early and you lose.", run:gReact},
+  {id:"guess",  name:"Number Hunt",         top:25,  blurb:"Find the hidden number from 1 to 10 in three tries.", run:gGuess},
+  {id:"slots",  name:"Slot Spin",           top:100, blurb:"Spin three reels. Three matching letters hit the jackpot.", run:gSlots},
+  {id:"rps",    name:"Rock Paper Scissors", top:8,   blurb:"Beat the machine in a single round.", run:gRps}
+];
+
+function renderGames(){
+  var u = viewer();
+  $("#games").innerHTML = GAMES.map(function(g, i){
+    return '<button class="game" data-act="play" data-id="' + g.id + '">' +
+      '<span class="game-top"><span class="ball lg c' + (i % 5 + 1) + '" aria-hidden="true">' + "BINGO".charAt(i % 5) + "</span>" +
+      '<span class="game-name">' + g.name + "<small>Up to " + fmt(earn(u, g.top)) + " points a round</small></span></span>" +
+      '<span class="blurb">' + g.blurb + "</span>" +
+      '<span class="game-foot"><span class="mono muted">Free to play</span><span class="go">Play →</span></span></button>';
+  }).join("");
+}
+
+function openGame(g){
+  if (!cur()){ openAuth("Sign in to play " + g.name + ". Games are free.", "in"); return; }
+  startRound(g);
+}
+function startRound(g){
+  gameToken++;
+  var finished = false;
+  openModal('<div class="m-head"><h2>' + g.name + '</h2><button class="x" data-close aria-label="Close">×</button></div>' +
+    '<div id="result"></div><div class="stage" id="stage"></div>');
+  g.run($("#stage"), function(prize, msg){
+    if (finished) return; finished = true;
+    var u = cur(); if (!u) return;
+    var before = levelOf(u.games), mult = before.mult, bonus = playBonus(u), earned = (prize + bonus) * mult, cr = creditsPerRound(u);
+    u.points += earned; u.rounds = (u.rounds || 0) + 1; u.games += cr;
+    var lv = levelOf(u.games), up = lv.n > before.n;
+    logH(u, "game", "Played " + g.name + " (" + prize + " prize + " + bonus + " for playing" + (mult > 1 ? ", ×" + mult : "") + ")", 0, earned);
+    if (up) logH(u, "level", "Reached Level " + lv.n + ": " + lv.name + " (×" + lv.mult + " points)", 0, 0);
+    save(); renderAll();
+    var N = nextLevel(u.games);
+    $("#result").innerHTML = '<div class="result"><strong>+' + fmt(earned) + " binga points</strong><p>" + esc(msg) + "</p>" +
+      '<p class="small muted">(' + prize + " prize + " + bonus + " for playing)" + (mult > 1 ? " × " + mult : "") + "</p>" +
+      (up ? '<p class="up">Level up! Level ' + lv.n + " (" + lv.name + ") pays ×" + lv.mult + " from your next round.</p>" : "") +
+      (N ? '<p class="small muted">' + fmt(u.games) + " of " + fmt(N.games) + " games to Level " + N.n + "</p>" : "") +
+      '<button class="btn again" id="again">Play again</button><button class="link small" data-close>Close</button></div>';
+    var ag = $("#again"); ag.addEventListener("click", function(){ startRound(g); }); ag.focus();
+  });
+}
+
+function gBingo(stage, done){
+  var pool = []; for (var i = 1; i <= 15; i++) pool.push(i);
+  var card = shuffle(pool.slice()).slice(0, 9), drawn = shuffle(pool.slice()).slice(0, 9);
+  stage.innerHTML = hint("Your card has nine numbers from 1 to 15. Nine balls will be drawn. Each full line pays " + P(5) + " points and a full card pays " + P(60) + " more.") +
+    '<div class="bingo-card">' + card.map(function(n){ return '<div class="cell" data-n="' + n + '">' + n + "</div>"; }).join("") + "</div>" +
+    '<div class="balls" id="drawn" aria-live="polite"></div>';
+  var k = 0, marked = {};
+  function next(){
+    if (k >= drawn.length){ finish(); return; }
+    var n = drawn[k]; k++;
+    var b = document.createElement("span"); b.className = "ball c" + (k % 5 + 1); b.textContent = n; $("#drawn", stage).appendChild(b);
+    var cell = $('.cell[data-n="' + n + '"]', stage);
+    if (cell){ cell.classList.add("hit"); marked[n] = true; }
+    later(next, 450);
+  }
+  function finish(){
+    var L = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]], lines = 0;
+    L.forEach(function(l){ if (l.every(function(ix){ return marked[card[ix]]; })) lines++; });
+    var full = card.every(function(n){ return marked[n]; });
+    done(lines * 5 + (full ? 60 : 0), lines ? "You completed " + lines + (lines === 1 ? " line." : " lines.") + (full ? " Full card!" : "") : "No full lines on this card.");
+  }
+  later(next, 600);
+}
+
+function gCoin(stage, done){
+  stage.innerHTML = hint("Call it. A correct call pays " + P(8) + " points.") + '<div class="coin" id="coin" aria-live="polite">?</div>' +
+    '<div class="row center"><button class="btn" data-pick="Heads">Heads</button><button class="btn" data-pick="Tails">Tails</button></div>';
+  var busy = false;
+  stage.addEventListener("click", function(e){
+    var b = e.target.closest("[data-pick]"); if (!b || busy) return; busy = true;
+    var pick = b.getAttribute("data-pick"), coin = $("#coin", stage);
+    $$("[data-pick]", stage).forEach(function(x){ x.disabled = true; });
+    coin.classList.add("flip"); coin.textContent = "…";
+    later(function(){
+      var res = rand(2) ? "Heads" : "Tails";
+      coin.classList.remove("flip"); coin.textContent = res;
+      done(res === pick ? 8 : 0, "It landed " + res + ". You called " + pick + ".");
+    }, 900);
+  });
+}
+
+function gDice(stage, done){
+  stage.innerHTML = hint("Roll two dice against the house. A win pays " + P(8) + " points and a tie pays " + P(4) + ".") +
+    '<div class="duel"><div><span class="lbl">You</span><div class="dice" id="d-you"><span>?</span><span>?</span></div></div>' +
+    '<div><span class="lbl">House</span><div class="dice" id="d-house"><span>?</span><span>?</span></div></div></div>' +
+    '<div class="row center"><button class="btn" id="roll">Roll</button></div>';
+  function show(sel, v){ var s = $$("span", $(sel, stage)); s[0].textContent = v[0]; s[1].textContent = v[1]; }
+  $("#roll", stage).addEventListener("click", function(){
+    this.disabled = true;
+    var y = [1 + rand(6), 1 + rand(6)], h = [1 + rand(6), 1 + rand(6)];
+    show("#d-you", y);
+    later(function(){
+      show("#d-house", h);
+      var ys = y[0] + y[1], hs = h[0] + h[1];
+      if (ys > hs) done(8, "You rolled " + ys + " against " + hs + ".");
+      else if (ys === hs) done(4, "Both rolled " + ys + ".");
+      else done(0, "You rolled " + ys + " and the house rolled " + hs + ".");
+    }, 700);
+  });
+}
+
+function gHilo(stage, done){
+  var a = rand(13), b = rand(13);
+  stage.innerHTML = hint("Is the next card higher or lower? A correct guess pays " + P(8) + " points. Equal cards go to the house.") +
+    '<div class="cards"><div class="pc">' + CARD[a] + '</div><div class="pc back" id="c2">?</div></div>' +
+    '<div class="row center"><button class="btn" data-g="hi">Higher</button><button class="btn" data-g="lo">Lower</button></div>';
+  var used = false;
+  stage.addEventListener("click", function(e){
+    var t = e.target.closest("[data-g]"); if (!t || used) return; used = true;
+    $$("[data-g]", stage).forEach(function(x){ x.disabled = true; });
+    var c2 = $("#c2", stage); c2.textContent = CARD[b]; c2.classList.remove("back");
+    var g = t.getAttribute("data-g"), win = (g === "hi" && b > a) || (g === "lo" && b < a);
+    done(win ? 8 : 0, b === a ? "Same card, so the house keeps it." : "The card was " + CARD[b] + ".");
+  });
+}
+
+function gMemory(stage, done){
+  var vals = [7, 12, 23, 34, 48, 61], deck = shuffle(vals.concat(vals));
+  stage.innerHTML = hint("Find all six pairs. 8 moves or fewer pays " + P(30) + " points, then " + P(20) + ", " + P(12) + " and " + P(6) + " as moves go up.") +
+    '<div class="mem">' + deck.map(function(v, i){ return '<button class="mc" data-i="' + i + '" aria-label="Card ' + (i + 1) + '">?</button>'; }).join("") + "</div>" +
+    '<p class="stat" id="mv">Moves: 0</p>';
+  var open = [], moves = 0, matched = 0, lock = false, btns = $$(".mc", stage);
+  stage.addEventListener("click", function(e){
+    var b = e.target.closest(".mc"); if (!b || lock) return;
+    var i = +b.getAttribute("data-i");
+    if (b.classList.contains("up") || b.classList.contains("ok")) return;
+    b.classList.add("up"); b.textContent = deck[i]; open.push(i);
+    if (open.length === 2){
+      moves++; $("#mv", stage).textContent = "Moves: " + moves;
+      var x = open[0], y = open[1];
+      if (deck[x] === deck[y]){
+        [x, y].forEach(function(ix){ btns[ix].classList.remove("up"); btns[ix].classList.add("ok"); });
+        matched++; open = [];
+        if (matched === 6) done(moves <= 8 ? 30 : moves <= 10 ? 20 : moves <= 13 ? 12 : 6, "You cleared the board in " + moves + " moves.");
+      } else {
+        lock = true;
+        later(function(){
+          [x, y].forEach(function(ix){ btns[ix].classList.remove("up"); btns[ix].textContent = "?"; });
+          open = []; lock = false;
+        }, 700);
+      }
+    }
+  });
+}
+
+function gWhack(stage, done){
+  stage.innerHTML = hint("Fifteen seconds. Each ball you tap is worth " + P(2) + " points, up to " + P(30) + ".") +
+    '<div class="whack">' + [0,1,2,3,4,5,6,7,8].map(function(i){ return '<button class="wc" data-i="' + i + '" aria-label="Ball ' + (i + 1) + '"></button>'; }).join("") + "</div>" +
+    '<p class="stat">Time <span id="wt">15</span> · Hits <span id="wh">0</span></p>' +
+    '<div class="row center"><button class="btn" id="wgo">Start</button></div>';
+  var cells = $$(".wc", stage), hits = 0, left = 15, lit = -1, running = false;
+  stage.addEventListener("click", function(e){
+    var c = e.target.closest(".wc");
+    if (!c || !running) return;
+    if (+c.getAttribute("data-i") === lit){ hits++; c.classList.remove("on"); lit = -1; $("#wh", stage).textContent = hits; }
+  });
+  function pop(){
+    if (!running) return;
+    if (lit > -1) cells[lit].classList.remove("on");
+    var n; do { n = rand(9); } while (n === lit);
+    lit = n; cells[n].classList.add("on"); later(pop, 750);
+  }
+  function tick(){
+    left--; $("#wt", stage).textContent = left;
+    if (left <= 0){
+      running = false; if (lit > -1) cells[lit].classList.remove("on");
+      done(Math.min(hits * 2, 30), "You tapped " + hits + (hits === 1 ? " ball." : " balls."));
+    } else later(tick, 1000);
+  }
+  $("#wgo", stage).addEventListener("click", function(){ this.disabled = true; running = true; later(pop, 300); later(tick, 1000); });
+}
+
+function gReact(stage, done){
+  stage.innerHTML = hint("Tap the pad to arm it. When it turns green, tap again as fast as you can. Under 250 ms pays " + P(25) + " points, under 350 ms " + P(15) + ".") +
+    '<button class="pad" id="pad">Tap to start</button>';
+  var pad = $("#pad", stage), state = "idle", t0 = 0;
+  pad.addEventListener("click", function(){
+    if (state === "idle"){
+      state = "wait"; pad.className = "pad wait"; pad.textContent = "Wait for green…";
+      later(function(){ if (state !== "wait") return; state = "go"; pad.className = "pad go"; pad.textContent = "Tap now!"; t0 = Date.now(); }, 1200 + rand(2000));
+    } else if (state === "wait"){
+      state = "end"; pad.className = "pad"; pad.textContent = "Too early";
+      done(0, "You tapped before it turned green.");
+    } else if (state === "go"){
+      var ms = Date.now() - t0; state = "end"; pad.className = "pad"; pad.textContent = ms + " ms";
+      done(ms < 250 ? 25 : ms < 350 ? 15 : ms < 500 ? 8 : 3, "Your reaction time was " + ms + " ms.");
+    }
+  });
+}
+
+function gGuess(stage, done){
+  var secret = 1 + rand(10), tries = 3;
+  stage.innerHTML = hint("I am thinking of a number from 1 to 10. Find it in three tries: " + P(25) + " points on the first, " + P(15) + " on the second, " + P(8) + " on the third.") +
+    '<div class="nums">' + [1,2,3,4,5,6,7,8,9,10].map(function(n){ return '<button class="btn ghost" data-n="' + n + '">' + n + "</button>"; }).join("") + "</div>" +
+    '<p class="stat" id="gh">3 tries left</p>';
+  stage.addEventListener("click", function(e){
+    var b = e.target.closest("[data-n]"); if (!b || b.disabled || tries <= 0) return;
+    var n = +b.getAttribute("data-n"); tries--; b.disabled = true;
+    if (n === secret){
+      var pts = tries === 2 ? 25 : tries === 1 ? 15 : 8;
+      tries = 0;
+      $$("[data-n]", stage).forEach(function(x){ x.disabled = true; });
+      done(pts, "You found " + secret + ".");
+    } else if (tries === 0){
+      $$("[data-n]", stage).forEach(function(x){ x.disabled = true; });
+      done(0, "The number was " + secret + ".");
+    } else {
+      $("#gh", stage).textContent = (n < secret ? "Go higher than " : "Go lower than ") + n + ". " + tries + (tries === 1 ? " try left" : " tries left");
+    }
+  });
+}
+
+function gSlots(stage, done){
+  var S = ["B","I","N","G","O"];
+  stage.innerHTML = hint("Three matching letters pay " + P(100) + " points. Any two matching pay " + P(10) + ".") +
+    '<div class="reels" aria-live="polite"><div class="reel">?</div><div class="reel">?</div><div class="reel">?</div></div>' +
+    '<div class="row center"><button class="btn" id="spin">Spin</button></div>';
+  var reels = $$(".reel", stage);
+  $("#spin", stage).addEventListener("click", function(){
+    this.disabled = true;
+    var fin = [rand(5), rand(5), rand(5)], f = 0;
+    function step(){
+      f++;
+      for (var r = 0; r < 3; r++) reels[r].textContent = f < 10 + r * 6 ? S[rand(5)] : S[fin[r]];
+      if (f < 10 + 2 * 6 + 1) later(step, 70); else pay();
+    }
+    function pay(){
+      var a = fin[0], b = fin[1], c = fin[2];
+      if (a === b && b === c) done(100, "Jackpot. Three " + S[a] + "s.");
+      else if (a === b || b === c || a === c) done(10, "Two letters matched.");
+      else done(0, "No matches this spin.");
+    }
+    step();
+  });
+}
+
+function gRps(stage, done){
+  var O = ["Rock", "Paper", "Scissors"];
+  stage.innerHTML = hint("A win pays " + P(8) + " points and a tie pays " + P(4) + ".") +
+    '<div class="row center">' + O.map(function(o, i){ return '<button class="btn" data-o="' + i + '">' + o + "</button>"; }).join("") + "</div>";
+  var used = false;
+  stage.addEventListener("click", function(e){
+    var b = e.target.closest("[data-o]"); if (!b || used) return; used = true;
+    $$("[data-o]", stage).forEach(function(x){ x.disabled = true; });
+    var p = +b.getAttribute("data-o"), c = rand(3), r = (p - c + 3) % 3;
+    var txt = "You played " + O[p] + " and the machine played " + O[c] + ".";
+    if (r === 1) done(8, txt); else if (r === 0) done(4, txt + " It is a tie."); else done(0, txt);
+  });
+}
+
+/* ---------- shop ---------- */
+var lastMail = null;
+function renderShop(){
+  $("#tickets").innerHTML = CFG.tiers.map(function(t){
+    var cost = t.binga * CFG.pointsPerBinga;
+    return '<div class="ticket tiered" style="--tier:var(--t-' + t.id + ')">' +
+      '<span class="tier-name"><i></i>' + t.name + "</span>" +
+      '<span class="amt">' + fmt(t.binga) + '</span><span class="unit">bingas on the pass</span><div class="perf"></div>' +
+      '<span class="price">' + fmt(cost) + ' points</span><span class="need" data-cost="' + cost + '"></span>' +
+      '<button class="btn" data-act="buy" data-tier="' + t.id + '">Buy ' + t.name + "</button></div>";
+  }).join("");
+  refreshShop();
+}
+function customPts(){ var v = Math.floor(Number($("#custom").value)); return (isFinite(v) && v > 0) ? Math.min(v, 1000000) : 0; }
+function updateCustom(){
+  var pts = customPts(), n = Math.floor(pts / CFG.pointsPerBinga), spend = n * CFG.pointsPerBinga, u = cur(), bal = u ? u.points : 0;
+  $("#c-get").textContent = n ? fmt(n) + (n === 1 ? " binga" : " bingas") : "–";
+  $("#c-spend").textContent = n ? fmt(spend) + " points" : "–";
+  $("#c-left").textContent = !n ? "–" : !u ? "Sign in to see" : spend <= bal ? fmt(bal - spend) + " points" : "Need " + fmt(spend - bal) + " more";
+  $("#c-lo").textContent = (pts && !n) ? "You need at least " + CFG.pointsPerBinga + " points for 1 binga." :
+    (pts - spend) ? fmt(pts - spend) + " of those points are left over because " + CFG.pointsPerBinga + " points make 1 binga. They are not taken." : "";
+}
+function refreshShop(){
+  var u = cur();
+  $$(".need").forEach(function(el){
+    var cost = +el.getAttribute("data-cost");
+    if (!u){ el.textContent = "Sign in to buy"; el.className = "need"; }
+    else if (u.points >= cost){ el.textContent = "You can buy this now"; el.className = "need ok"; }
+    else { el.textContent = "Need " + fmt(cost - u.points) + " more points"; el.className = "need"; }
+  });
+  updateCustom();
+}
+
+function openCheckout(binga, label){
+  var u = cur();
+  if (!u){ openAuth("Sign in to buy bingas.", "in"); return; }
+  var cost = binga * CFG.pointsPerBinga, enough = u.points >= cost, vc = String(1000 + rand(9000)), fails = 0, busy = false;
+  openModal('<div class="m-head"><h2>Buy ' + fmt(binga) + ' bingas</h2><button class="x" data-close aria-label="Close">×</button></div>' +
+    '<div class="sum"><div><span>' + esc(label) + "</span><b>" + fmt(binga) + " bingas</b></div>" +
+    "<div><span>Points taken from you</span><b>−" + fmt(cost) + "</b></div>" +
+    "<div><span>Your points now</span><b>" + fmt(u.points) + "</b></div>" +
+    "<div><span>Points after</span><b>" + (enough ? fmt(u.points - cost) : "Need " + fmt(cost - u.points) + " more") + "</b></div></div>" +
+    (enough ? '<form id="payform" autocomplete="off" style="display:flex;flex-direction:column;gap:12px">' +
+      '<div class="field"><label for="p-name">Name on the pass</label><input id="p-name" maxlength="30" required value="' + esc(u.name) + '"></div>' +
+      '<div class="field"><label for="p-pass">Verify it is you: your passcode</label><input id="p-pass" type="password" autocomplete="off" required></div>' +
+      '<div class="field"><label for="p-code">Type this verification code</label><div class="code-box" aria-label="Verification code ' + vc.split("").join(" ") + '">' + vc.split("").join(" ") + '</div><input id="p-code" inputmode="numeric" maxlength="4" required></div>' +
+      '<p class="err" id="p-err" role="alert"></p>' +
+      '<button class="btn" type="submit" id="p-pay">Verify and pay ' + fmt(cost) + " points</button>" +
+      '<p class="hint">Nothing is taken from your points until both checks pass.</p></form>'
+    : '<p class="err">You do not have enough binga points yet.</p><p class="small">Games are free. <a href="#play" data-close>Play a few rounds</a> to earn more points.</p>'));
+  if (!enough) return;
+  function fail(msg){
+    fails++; busy = false; $("#p-pay").disabled = false;
+    if (fails >= 3){ closeModal(); toast("Purchase stopped after 3 wrong tries. Nothing was taken."); return; }
+    $("#p-err").textContent = msg + " " + (3 - fails) + (3 - fails === 1 ? " try left." : " tries left.");
+  }
+  $("#payform").addEventListener("submit", function(e){
+    e.preventDefault();
+    if (busy) return;
+    var name = $("#p-name").value.trim(), err = $("#p-err");
+    if (!name){ err.textContent = "Enter the name for the pass."; return; }
+    if (cur().points < cost){ err.textContent = "You do not have enough binga points yet."; return; }
+    busy = true; $("#p-pay").disabled = true; err.textContent = "";
+    if ($("#p-code").value.trim() !== vc){ fail("That code does not match the one shown."); return; }
+    hashPass(u.salt, passFor($("#p-pass").value)).then(function(h){
+      if (h !== u.hash){ fail("That passcode is not right."); return; }
+      finishPurchase(binga, label, name);
+    });
+  });
+}
+function mailtoHref(m){ return "mailto:" + m.to + "?subject=" + encodeURIComponent(m.subject) + "&body=" + encodeURIComponent(m.body); }
+var buying = false;
+/* The verification code is a signature over pass code, name and bingas, so a receipt can be checked from the text alone. */
+function vcodeFor(p){
+  return hashPass("sign:" + CFG.signSalt, p.code + "|" + p.name + "|" + p.total).then(function(h){ return h.slice(0, 8).toUpperCase(); });
+}
+function finishPurchase(binga, label, name){
+  var u = cur(); if (!u || buying) return;
+  var cost = binga * CFG.pointsPerBinga;
+  if (u.points < cost) return;
+  buying = true;
+  var p = newPass(name, binga, "points"); p.tier = label;
+  vcodeFor(p).then(function(vc){
+    buying = false;
+    if (u.points < cost) return;
+    p.vcode = vc; u.points -= cost; u.passes.push(p);
+    logH(u, "pass", "Bought " + label + " " + p.code + " for " + name + " (" + fmt(binga) + " bingas for " + fmt(cost) + " points)", binga, -cost);
+    lastMail = queueEmail(u, p, cost); save(); renderAll();
+    openModal('<div class="m-head"><h2>Purchase verified</h2><button class="x" data-close aria-label="Close">×</button></div>' +
+      '<div class="receipt"><span>' + esc(label.toUpperCase()) + " " + esc(p.code) + "</span><span>Name: " + esc(name) + "</span><span>Bingas: " + fmt(binga) + "</span><span>Paid: " + fmt(cost) + " binga points</span><span>Verification code: " + esc(vc) + "</span></div>" +
+      '<div class="note">The receipt email to <b>' + esc(lastMail.to) + '</b> includes the verification code. This page cannot send email by itself, so send it from your mail app or copy the text.</div>' +
+      '<pre class="mailpre" id="rm-body">' + esc(lastMail.body) + "</pre>" +
+      '<div class="row"><a class="btn" href="' + mailtoHref(lastMail).replace(/"/g, "&quot;") + '" target="_blank" rel="noopener">Open email draft</a><button class="btn ghost" data-act="copyreceipt">Copy email text</button></div>' +
+      '<div class="row"><a class="btn ghost" href="#play" data-close>Play games</a><a class="btn ghost" href="#wallet" data-close>See my bingas</a></div>');
+  });
+}
+function queueEmail(u, p, cost){
+  var body = "A new Binga pass was bought.\n\nName on pass: " + p.name + "\nAccount: " + u.name + "\nPass: " + p.tier + " (" + p.code + ")" +
+    "\nVerification code: " + p.vcode + "\nBingas on pass: " + fmt(p.total) + "\nPaid with: " + fmt(cost) + " binga points\nLevel: " + levelOf(u.games).n + "\nTime: " + new Date(p.t).toLocaleString("en-GB");
+  var m = {id: p.code, to: ownerEmail, subject: "Binga pass bought: " + fmt(p.total) + " bingas by " + p.name, body: body, t: p.t};
+  outbox.unshift(m);
+  if (outbox.length > 200) outbox.length = 200;
+  sset("binga.outbox", outbox);
+  return m;
+}
+
+/* ---------- header, wallet, upgrades, owner ---------- */
+function isOwner(){ return session === OWNER_KEY && ownerUnlocked && !!users[OWNER_KEY]; }
+function renderHeader(){
+  var u = cur();
+  $("#acct").innerHTML = u
+    ? '<a class="bal" href="#wallet" aria-label="Your level and balance"><span>Lv <b>' + levelOf(u.games).n + "</b></span><span><b>" + fmt(totalBinga(u)) + "</b> bingas</span><span><b>" + fmt(u.points) + '</b> pts</span></a>' + (isOwner() ? '<span class="tag">owner</span>' : "") + '<button class="link small" data-act="signout">Sign out</button>'
+    : '<button class="btn sm" data-act="signin">Sign in</button>';
+  $("#owner-link").hidden = !isOwner();
+  $("#pay-rates").innerHTML = payLine();
+  $("#play-banner").innerHTML = u ? levelCard(u)
+    : '<div class="note">Sign in or create an account to play. Games are free and your points, level and history are saved. <button class="link" data-act="signup">Create account</button></div>';
+}
+function renderWallet(){
+  var v = $("#v-wallet"), u = cur();
+  if (!u){
+    v.innerHTML = '<div class="intro"><h1>My Binga</h1><p>Your passes, binga points, level and full history show up here once you sign in.</p></div>' +
+      '<div class="row"><button class="btn" data-act="signin">Sign in</button><button class="btn ghost" data-act="signup">Create account</button></div>';
+    return;
+  }
+  var L = levelOf(u.games);
+  var list = u.history.filter(function(h){
+    if (histFilter === "all") return true;
+    if (histFilter === "passes") return h.type === "pass" || h.type === "upgrade";
+    if (histFilter === "games") return h.type === "game" || h.type === "level";
+    return h.type === "visit" || h.type === "gift";
+  });
+  function d(n){ return n === 0 ? '<span class="muted">–</span>' : '<span class="' + (n > 0 ? "pos" : "neg") + '">' + (n > 0 ? "+" : "−") + fmt(Math.abs(n)) + "</span>"; }
+  v.innerHTML = '<div class="intro"><h1>Hi, ' + esc(u.name) + '</h1><p>Member since ' + new Date(u.created).toLocaleDateString("en-GB", {day:"numeric", month:"long", year:"numeric"}) + ".</p></div>" +
+    '<div class="stats">' +
+    '<div class="stat-box"><span>Bingas left</span><b>' + fmt(totalBinga(u)) + "</b></div>" +
+    '<div class="stat-box"><span>Binga points</span><b>' + fmt(u.points) + "</b></div>" +
+    '<div class="stat-box"><span>Rounds played</span><b>' + fmt(u.rounds || 0) + "</b></div>" +
+    '<div class="stat-box"><span>Level</span><b>' + L.n + "</b></div></div>" +
+    levelCard(u) +
+    '<div class="panel"><h2>My passes</h2>' +
+    (u.passes.length ? '<div class="passlist">' + u.passes.slice().reverse().map(function(p){
+      var pct = p.total ? Math.round(p.left / p.total * 100) : 0;
+      return '<div class="mini' + (p.left ? "" : " used") + '"><span class="code">' + esc(p.code) + (p.vcode ? " · verify " + esc(p.vcode) : "") + "</span>" +
+        "<span><b>" + esc(p.tier || "Binga pass") + "</b> · " + esc(p.name) + '</span><span class="left">' + fmt(p.left) + ' <span class="muted small">of ' + fmt(p.total) + ' bingas left</span></span>' +
+        '<div class="bar-track" role="img" aria-label="' + pct + ' percent left"><div class="bar-fill" style="width:' + pct + '%"></div></div></div>';
+    }).join("") + "</div>" : '<p class="muted">No passes yet. <a href="#passes">Buy your first pass with binga points</a>.</p>') + "</div>" +
+    '<div class="panel"><h2>All levels</h2><ul class="levels">' + CFG.levels.map(function(l){
+      var attrs = l.n === L.n ? ' aria-current="true"' : (l.n > L.n ? ' class="locked"' : "");
+      return "<li" + attrs + "><span>Level " + l.n + " · " + l.name + '</span><span class="mono">' + (l.games ? fmt(l.games) + " games" : "Start") + " · ×" + l.mult + " points</span></li>";
+    }).join("") + "</ul></div>" +
+    '<div class="panel"><h2>History</h2><div class="chips" role="group" aria-label="Filter history">' +
+    [["all","All"],["passes","Passes and upgrades"],["games","Games and levels"],["visits","Visits and gifts"]].map(function(f){
+      return '<button class="chip" data-act="filter" data-f="' + f[0] + '" aria-pressed="' + (histFilter === f[0]) + '">' + f[1] + "</button>";
+    }).join("") + "</div>" +
+    (list.length ? '<div class="scroll"><table><thead><tr><th>When</th><th>What</th><th class="n">Bingas</th><th class="n">Points</th><th class="n">Balance</th></tr></thead><tbody>' +
+    list.slice(0, 120).map(function(h){
+      return '<tr><td class="mono" style="white-space:nowrap">' + when(h.t) + "</td><td>" + esc(h.label) + '</td><td class="n">' + d(h.dB) + '</td><td class="n">' + d(h.dP) + '</td><td class="n">' + fmt(h.b) + " / " + fmt(h.p) + "</td></tr>";
+    }).join("") + "</tbody></table></div>" : '<p class="muted">Nothing here yet.</p>') + "</div>";
+}
+
+function renderUpgrades(){
+  var u = cur(), box = $("#ups"), vw = viewer();
+  if (!box) return;
+  box.innerHTML = CFG.upgrades.map(function(d){
+    var n = u ? upLvl(u, d.id) : 0, maxed = n >= d.max, cost = maxed ? 0 : d.cost(n), pips = "", i, btn, need = "";
+    for (i = 0; i < d.max; i++) pips += "<i" + (i < n ? ' class="on"' : "") + "></i>";
+    if (!u) btn = '<button class="btn" data-act="signin">Sign in to upgrade</button>';
+    else if (maxed) btn = '<button class="btn" disabled>Maxed out</button>';
+    else {
+      btn = '<button class="btn" data-act="upgrade" data-id="' + d.id + '"' + (u.points < cost ? " disabled" : "") + ">Upgrade · " + fmt(cost) + " points</button>";
+      if (u.points < cost) need = '<span class="need">Need ' + fmt(cost - u.points) + " more points</span>";
+    }
+    return '<div class="panel"><h3>' + d.name + '</h3><p class="muted">' + d.desc + '</p>' +
+      '<div class="pips" role="img" aria-label="Level ' + n + " of " + d.max + '">' + pips + '</div>' +
+      '<div class="sum"><div><span>Level</span><b>' + n + " of " + d.max + "</b></div><div><span>Now</span><b>" + d.effect(n, vw) + "</b></div>" +
+      (maxed ? "" : "<div><span>Next</span><b>" + d.effect(n + 1, vw) + "</b></div>") + "</div>" + need + btn + "</div>";
+  }).join("");
+  $("#up-bal").textContent = u ? fmt(u.points) : "–";
+}
+function buyUpgrade(id){
+  var u = cur(); if (!u) return;
+  if (!u.up) u.up = {};
+  CFG.upgrades.forEach(function(d){
+    if (d.id !== id) return;
+    var n = upLvl(u, id); if (n >= d.max) return;
+    var cost = d.cost(n);
+    if (u.points < cost){ toast("You need " + fmt(cost - u.points) + " more points."); return; }
+    u.points -= cost; u.up[id] = n + 1;
+    logH(u, "upgrade", "Upgrade: " + d.name + " to level " + (n + 1) + " (−" + fmt(cost) + " points)", 0, -cost);
+    save(); renderAll(); toast(d.name + " is now level " + (n + 1) + ".");
+  });
+}
+
+function renderOwner(){
+  var v = $("#v-owner");
+  if (!isOwner()){
+    v.innerHTML = '<div class="intro"><h1>Owner area</h1><p>This page is locked. Sign in to the owner account to open it.</p></div>';
+    return;
+  }
+  var others = Object.keys(users).filter(function(k){ return k !== OWNER_KEY; });
+  v.innerHTML = '<div class="intro"><h1>Owner area</h1><p>Only the Binga 1 account can see this page.</p></div>' +
+    '<div class="panel narrow"><h3>Give points</h3>' +
+    (others.length ? '<div class="field"><label for="g-user">Account</label><select id="g-user">' + others.map(function(k){
+      return '<option value="' + esc(k) + '">' + esc(users[k].name) + " · " + fmt(users[k].points) + " points</option>";
+    }).join("") + '</select></div><div class="field"><label for="g-amt">Points to give</label><input id="g-amt" type="number" inputmode="numeric" min="1" max="1000000" step="1" value="100"></div>' +
+    '<button class="btn" data-act="gift">Give points</button><p class="hint">Accounts are saved in the browser where they were made, so only accounts from this browser are listed.</p>'
+    : '<p class="muted">No other accounts in this browser yet. Accounts are saved in the browser where they were made.</p>') + "</div>" +
+    '<div class="panel"><h3>Verify a receipt</h3><p class="muted small">Paste the whole receipt email. The verification code is checked against the pass code, name and bingas, so it works for any receipt, even from another browser.</p>' +
+    '<div class="field"><label for="v-text">Receipt email text</label><textarea id="v-text" placeholder="A new Binga pass was bought.&#10;&#10;Name on pass: ...&#10;Pass: ... (BNG-XXXX-XXXX)&#10;Verification code: ..."></textarea></div>' +
+    '<div class="row"><button class="btn sm" data-act="verify">Verify receipt</button></div><div id="v-out" aria-live="polite"></div></div>' +
+    '<div class="panel"><div class="field"><label for="o-mail">Send receipts to</label><input id="o-mail" type="text" inputmode="email" placeholder="you@example.com" value="' + esc(ownerEmail) + '"></div>' +
+    '<div class="row"><button class="btn sm" data-act="saveowner">Save address</button></div></div>' +
+    '<h2>Receipts</h2>' +
+    (outbox.length ? outbox.map(function(m, i){
+      var href = mailtoHref({to: m.to || ownerEmail, subject: m.subject, body: m.body}).replace(/"/g, "&quot;");
+      return '<div class="mail"><div class="meta">To: ' + esc(m.to || ownerEmail) + " · " + when(m.t) + "</div><strong>" + esc(m.subject) + '</strong><pre id="mb' + i + '">' + esc(m.body) + '</pre><div class="row"><a class="btn sm" href="' + href + '" target="_blank" rel="noopener">Open email draft</a><button class="btn ghost sm" data-act="copymail" data-i="' + i + '">Copy email text</button></div></div>';
+    }).join("") : '<p class="muted">No purchases yet. Receipts made in this browser appear here.</p>');
+}
+function doGift(){
+  if (!isOwner()) return;
+  var key = $("#g-user") ? $("#g-user").value : "", amt = Math.floor(Number($("#g-amt").value)), u = users[key];
+  if (!u || key === OWNER_KEY){ toast("Pick an account."); return; }
+  if (!(amt >= 1)){ toast("Enter 1 or more points."); return; }
+  amt = Math.min(amt, 1000000);
+  u.points += amt;
+  logH(u, "gift", "Gift from the owner", 0, amt);
+  logH(users[OWNER_KEY], "gift", "Gave " + fmt(amt) + " points to " + u.name, 0, 0);
+  save(); renderAll(); renderOwner(); toast("Gave " + fmt(amt) + " points to " + u.name + ".");
+}
+function doVerify(){
+  if (!isOwner()) return;
+  var t = $("#v-text").value, out = $("#v-out");
+  var code = (t.match(/BNG-[A-Z0-9]{4}-[A-Z0-9]{4}/i) || [])[0];
+  var nm = (t.match(/Name on pass:[ \t]*(.+)/i) || [])[1];
+  var tot = (t.match(/Bingas on pass:[ \t]*([\d,.  ]+)/i) || [])[1];
+  var vc = (t.match(/Verification code:[ \t]*([A-Z0-9]{8})/i) || [])[1];
+  if (!code || !nm || !tot || !vc){
+    out.innerHTML = '<div class="bad-box"><b>Cannot check this.</b> The text needs the pass code, the name, the bingas and the verification code from the receipt.</div>';
+    return;
+  }
+  var pass = {code: code.toUpperCase(), name: nm.trim(), total: parseInt(tot.replace(/\D/g, ""), 10)};
+  vcodeFor(pass).then(function(real){
+    if (real !== vc.toUpperCase()){
+      out.innerHTML = '<div class="bad-box"><b>Not verified.</b> The verification code does not match the pass code, name and bingas in this receipt. The receipt may have been changed.</div>';
+      return;
+    }
+    var found = null, holder = null;
+    Object.keys(users).forEach(function(k){ users[k].passes.forEach(function(p){ if (p.code === pass.code){ found = p; holder = users[k]; } }); });
+    out.innerHTML = '<div class="ok-box"><b>Verified. This receipt is genuine.</b><span>' + esc(pass.name) + " · " + fmt(pass.total) + " bingas · " + esc(pass.code) + "</span>" +
+      (found ? "<span>In this browser: account " + esc(holder.name) + ", " + fmt(found.left) + " bingas left.</span>" : "<span>This pass was not bought in this browser, so its bingas left are not shown.</span>") + "</div>";
+  });
+}
+function copyText(text, pre){
+  function fallback(){
+    try { var r = document.createRange(); r.selectNodeContents(pre); var s = window.getSelection(); s.removeAllRanges(); s.addRange(r); toast("Text selected. Press copy."); } catch (e) {}
+  }
+  try { navigator.clipboard.writeText(text).then(function(){ toast("Copied."); }, fallback); } catch (e) { fallback(); }
+}
+
+/* ---------- routing and events ---------- */
+var VIEWS = ["play", "passes", "upgrades", "wallet", "trading", "owner"];
+function route(){
+  var h = (location.hash || "").replace("#", "");
+  if (VIEWS.indexOf(h) < 0) h = "play";
+  VIEWS.forEach(function(v){ $("#v-" + v).hidden = v !== h; });
+  $$("nav a").forEach(function(a){ if (a.getAttribute("href") === "#" + h) a.setAttribute("aria-current", "page"); else a.removeAttribute("aria-current"); });
+  if (h === "wallet") renderWallet();
+  if (h === "upgrades") renderUpgrades();
+  if (h === "owner") renderOwner();
+  try { window.scrollTo(0, 0); } catch (e) {}
+}
+function renderAll(){ renderHeader(); renderGames(); renderWallet(); refreshShop(); renderUpgrades(); if (location.hash === "#owner") renderOwner(); }
+
+document.addEventListener("click", function(e){
+  var t = e.target.closest("[data-act]"); if (!t) return;
+  var a = t.getAttribute("data-act");
+  if (a === "signin") openAuth("", "in");
+  else if (a === "signup") openAuth("", "up");
+  else if (a === "signout") signOut();
+  else if (a === "play"){ var id = t.getAttribute("data-id"); GAMES.forEach(function(g){ if (g.id === id) openGame(g); }); }
+  else if (a === "buy"){ var tid = t.getAttribute("data-tier"); CFG.tiers.forEach(function(x){ if (x.id === tid) openCheckout(x.binga, x.name); }); }
+  else if (a === "buycustom"){
+    var n = Math.floor(customPts() / CFG.pointsPerBinga);
+    if (!n){ toast("Enter at least " + CFG.pointsPerBinga + " points."); return; }
+    openCheckout(n, "Custom pass");
+  }
+  else if (a === "allpoints"){
+    var uu = cur();
+    if (!uu){ openAuth("Sign in to use your points.", "in"); return; }
+    $("#custom").value = uu.points; updateCustom();
+  }
+  else if (a === "upgrade") buyUpgrade(t.getAttribute("data-id"));
+  else if (a === "filter"){ histFilter = t.getAttribute("data-f"); renderWallet(); }
+  else if (a === "saveowner"){
+    if (!isOwner()) return;
+    ownerEmail = $("#o-mail").value.trim() || CFG.ownerEmail; sset("binga.owner", ownerEmail);
+    outbox.forEach(function(m){ if (!m.to) m.to = ownerEmail; }); sset("binga.outbox", outbox);
+    renderOwner(); toast("Address saved.");
+  }
+  else if (a === "gift") doGift();
+  else if (a === "verify") doVerify();
+  else if (a === "copymail"){ var i = +t.getAttribute("data-i"); copyText(outbox[i].body, $("#mb" + i)); }
+  else if (a === "copyreceipt"){ if (lastMail) copyText(lastMail.body, $("#rm-body")); }
+});
+$("#custom").addEventListener("input", updateCustom);
+window.addEventListener("hashchange", route);
+
+/* ---------- start ---------- */
+Object.keys(users).forEach(function(k){
+  var u = users[k];
+  if (typeof u.games !== "number") u.games = u.history.filter(function(h){ return h.type === "game"; }).length;
+  if (typeof u.rounds !== "number") u.rounds = u.games;
+  if (!u.up) u.up = {pts: 0, lvl: 0};
+  u.passes.forEach(function(p){
+    if (!p.tier) p.tier = "Binga pass";
+    vcodeFor(p).then(function(v){ if (p.vcode !== v){ p.vcode = v; save(); } });
+  });
+});
+renderShop();
+if (session && !users[session]) session = null;
+if (cur()) logH(cur(), "visit", "Opened Binga", 0, 0);
+save();
+renderAll(); route();
+})();
+</script>
+
+</body></html>
